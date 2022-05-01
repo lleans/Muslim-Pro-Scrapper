@@ -1,7 +1,7 @@
 # Muslim Pro Scrapper 🕌
 Simple scrapper using aiohttp and pyquery to get Praytime for moslem people, rn i want this scrapper hosted on heroku (currently run out throwaway account so for deployment gonna bit delayed)
 
-## Setup 🖌️
+## Setup 🧩
 If you want to use this on your local machine, download this repo, and make sure you run on virtualenv(it's optional)
 1. Open terminal on the repo just you download, then run 📚
 <br />```pip install requirments.txt``` to install required library
@@ -12,5 +12,5 @@ If you want to use this on your local machine, download this repo, and make sure
 ## About PyPi ? 🐍
 about that, if you wanted to install this repo as library search on google pip install from github, currently i dont wanna this published on PyPi i just wanna keep this humble on underground library, let's see if i need it to published later
 
-## Screenshot 🖍️
+## Screenshot 🎳
 <code><img width=800 src="https://i.imgur.com/nf5fPx6.png"></code>
