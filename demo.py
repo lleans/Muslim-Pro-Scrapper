@@ -11,7 +11,7 @@ async def asd():
     print(data.origin)
     print(data.raw)
     for i in range(6): #Prayers of moslem time
-        print(data.raw[i])
+        print(data.raw[i].prayers, '-', data.raw[i].praytime)
     print("-" * 50)
     
 loop = asyncio.get_event_loop()

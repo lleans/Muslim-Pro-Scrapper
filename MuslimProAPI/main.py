@@ -50,8 +50,8 @@ class Search:
         return {
             'country_code': data['data'][0]['country_module']['global']['alpha2'],
             'country_name': data['data'][0]['country'],
-            "city_name": data['data'][0]['name'],
-            "coordinates": f"{data['data'][0]['latitude']},{data['data'][0]['longitude']}"
+            'city_name': data['data'][0]['name'],
+            'coordinates': f"{data['data'][0]['latitude']},{data['data'][0]['longitude']}"
         } if response.status == 200 else Exception(self._errors(response.status))
 
     async def search(self, location: str):
