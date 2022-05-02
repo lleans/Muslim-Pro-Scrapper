@@ -1,5 +1,5 @@
 # Muslim Pro Scrapper 🕌
-Simple scrapper using aiohttp and pyquery to get Praytime for moslem people, rn i want this scrapper hosted on heroku (currently run out throwaway account so for deployment gonna bit delayed)
+Simple scrapper using aiohttp and pyquery to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslim-pro-api.herokuapp.com/Tokyo), for location type it after domain to preffer by your location ex. muslim-pro-api.herokuapp.com/Tokyo(your location here)
 
 ## Setup 🧩
 If you want to use this on your local machine, download this repo, and make sure you run on virtualenv(it's optional)

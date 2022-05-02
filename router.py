@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from MuslimProAPI import Search
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect
 from os import environ
 
 app = Flask('MuslimPro_API')
@@ -22,5 +22,9 @@ async def main_app(query: str):
         response['praytimes'][data.raw[i].prayers] = data.raw[i].praytime
     
     return jsonify(response)
+
+@app.errorhandler(404)
+async def redirect():
+    return redirect('https://github.com/lleans/Muslim-Pro-Scrapper', code=400)
 
 app.run(port=environ.get('PORT') or 8000, host='0.0.0.0')
