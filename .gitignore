@@ -1,2 +1,4 @@
 __pycache__
 API_KEY
+.dockerignore
+.gitignore
