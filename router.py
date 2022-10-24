@@ -40,9 +40,10 @@ async def main_app(query: str = None):
         else:
             query = query.strip()
         data = await api.search(location=query)
+        location = await api.geocode(location=query)
         session.close()
 
-    response['location'] = query.title()
+    response['location'] = f"{location['city_name'].title()}, {location['country_name'].title()}"
     response['calculationMethod'] = data.calculationMethod
     response['asrjuristicMethod'] = data.asrjuristicMethod
     response['praytimes'] = {}
