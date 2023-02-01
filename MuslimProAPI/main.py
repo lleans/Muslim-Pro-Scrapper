@@ -1,9 +1,10 @@
 from aiohttp import ClientSession
 from lxml.html import HTMLParser, fromstring
 from pyquery import PyQuery
+from datetime import datetime, timedelta
 
 from .model import Response
-from .const import MUSLIMPRO_URL, GEOCODE_URL, AsrjuristicMethod, CalculationMethod
+from .const import MUSLIMPRO_URL, GEOCODE_URL, AsrjuristicMethod, CalculationMethod, RAMADHAN_API
 
 
 class Search:
@@ -18,7 +19,11 @@ class Search:
         if lib == 'asyncio':
             from asyncio import get_event_loop
             loop = loop or get_event_loop()
-        self.session = session or ClientSession(loop=loop)
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36"
+        }
+        self.session = session or ClientSession(loop=loop, headers=headers)
 
     @staticmethod
     def _errors(code):
@@ -42,6 +47,17 @@ class Search:
             'tbody').eq(0)('tr')
         return Response(data=data, calcMethod=self.calculation, asrjurMethod=self.asrjuristic)
 
+    @staticmethod
+    def _slice_ramadhan(resp: PyQuery) -> dict:
+        end_date = datetime.strptime(
+            f"{resp('td strong').eq(0).text()} {resp('td').eq(2).text()}", '%Y %B %d')
+
+        return {end_date.strftime('%Y'): {
+            'start': (end_date - timedelta(days=30)).strftime('%B %d'),
+            'end': end_date.strftime('%B %d')
+        }
+        }
+
     async def geocode(self, location: str):
         params = {
             'query': location
@@ -57,6 +73,18 @@ class Search:
             'asrjuristic': self.asrjuristic
         } if response.status == 200 else Exception(self._errors(response.status))
         return data
+
+    async def ramadhan_time(self):
+        response = await self.session.get(RAMADHAN_API)
+
+        utf8_parser = HTMLParser(encoding='utf-8')
+        data = PyQuery(fromstring(await response.text(), parser=utf8_parser)).find('.content_wrapper tbody tr')
+
+        res = {}
+        for i in data.items():
+            res.update(self._slice_ramadhan(i))
+
+        return res
 
     async def search(self, location: str):
         geocode = await self.geocode(location=location)

@@ -32,7 +32,8 @@ async def main_app(query: str = None):
         'location': "",
         'calculationMethod': "",
         'asrjuristicMethod': "",
-        'praytimes': ""
+        'praytimes': "",
+        'ramadhan': ""
     }
 
     par1, par2 = str(request.args.get('calcMethod')).replace(' ', '_').upper(), str(request.args.get('asjurMethod')).replace(' ', '_').upper()
@@ -48,6 +49,11 @@ async def main_app(query: str = None):
                 query = query.strip()
             data = await api.search(location=query)
             location = await api.geocode(location=query)
+
+            if location['country_name'].title() == "Indonesia":
+                response['ramadhan'] = await api.ramadhan_time()
+            else:
+                response['ramadhan'] = "Currently only supported in Indonesian"
         except (IndexError, KeyError):
             response['location'] = not_found
         session.close()
