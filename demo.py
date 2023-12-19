@@ -4,7 +4,7 @@ import asyncio
 from MuslimProAPI.const import AsrjuristicMethod, CalculationMethod
 
 # Custom calculationMethod and asrjuristicMethod 
-# client = MuslimProAPI.Search(calculation=CalculationMethod.SIHAT_KEMENAG_KEMENTERIAN_AGAMA_RI.value, asrjuristic=AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI.value)
+# client = MuslimProAPI.Search(calculation=CalculationMethod.SIHAT_KEMENAG_KEMENTERIAN_AGAMA_RI, asrjuristic=AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI)
 
 # Default just let it blank
 client = MuslimProAPI.Search()
@@ -12,7 +12,7 @@ client = MuslimProAPI.Search()
 async def asd():
     location = "Tokyo"
     data = await client.search(location)
-    print("Showing prayertime for "+location)
+    print(f"Showing prayertime for {location}")
     print("-" * 50)
     print(data.origin)
     print(data.raw)

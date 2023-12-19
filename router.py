@@ -1,16 +1,24 @@
 from aiohttp import ClientSession
 from MuslimProAPI import Search
 from flask import Flask, jsonify, redirect, request
+from flask_caching import Cache
 from os import environ
 
 from MuslimProAPI.const import AsrjuristicMethod, CalculationMethod
 
+config: dict = {
+    'CORS_HEADERS': 'Content-Type',
+    'JSON_SORT_KEYS': False,
+    'CACHE_TYPE': 'FileSystemCache',
+    "CACHE_DEFAULT_TIMEOUT": 86400,
+    "CACHE_DIR": "cache"
+}
+
 app = Flask('MuslimPro_API')
+app.config.from_mapping(config)
+cache: Cache = Cache(app)
 
-app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['JSON_SORT_KEYS'] = False
-
-async def where_ip(session, ip_address: str):
+async def where_ip(session: ClientSession, ip_address: str):
     url = "https://demo.ip-api.com/json/"
     headers = {
         "Origin": "https://ip-api.com",
@@ -20,12 +28,13 @@ async def where_ip(session, ip_address: str):
         "fields": environ.get("API_KEY") or open("API_KEY").readline(),
         "lang": "en"
     }
-    response = await session.get(url+ip_address, params=params, headers=headers)
-    response = await response.json()
-    return f"{response['city']}, {response['regionName']}, {response['country']}, {response['continent']}"
+    async with session.get(url+ip_address, params=params, headers=headers) as response:
+        res = await response.json()
+        return f"{res['city']}, {res['regionName']}, {res['country']}, {res['continent']}"
 
 @app.route('/<string:query>', methods=['GET'])
 @app.route('/', methods=['GET'])
+@cache.cached(query_string=True)
 async def main_app(query: str = None):
     not_found = 'Location not Found'
     response = {
@@ -37,8 +46,8 @@ async def main_app(query: str = None):
     }
 
     par1, par2 = str(request.args.get('calcMethod')).replace(' ', '_').upper(), str(request.args.get('asjurMethod')).replace(' ', '_').upper()
-    calcMethod = CalculationMethod[par1].value if hasattr(CalculationMethod, par1) else CalculationMethod.DEFAULT.value
-    asrjurMethod = AsrjuristicMethod[par2].value if hasattr(AsrjuristicMethod, par2) else AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI.value
+    calcMethod = CalculationMethod[par1] if hasattr(CalculationMethod, par1) else CalculationMethod.DEFAULT
+    asrjurMethod = AsrjuristicMethod[par2] if hasattr(AsrjuristicMethod, par2) else AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI
     async with ClientSession() as session:
         api = Search(session=session, calculation=calcMethod, asrjuristic=asrjurMethod)
         try:

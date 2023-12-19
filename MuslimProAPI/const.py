@@ -4,7 +4,7 @@ from enum import Enum
 MUSLIMPRO_URL = "https://www.muslimpro.com/find"
 GEOCODE_URL = "https://positionstack.com/geo_api.php"
 # Indonesian Based
-RAMADHAN_API = "https://calendarific.com/holiday/indonesia/idul-fitri"
+RAMADHAN_API_INDONESIA = "https://calendarific.com/holiday/indonesia/idul-fitri"
 
 class CalculationMethod(Enum):
     DEFAULT = "Precalc"
