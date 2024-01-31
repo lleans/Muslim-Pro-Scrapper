@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from MuslimProAPI import Search
-from flask import Flask, jsonify, redirect, request
+from flask import Flask, jsonify, redirect, request, url_for
 from flask_caching import Cache
 from os import environ
 
@@ -18,11 +18,14 @@ app = Flask('MuslimPro_API')
 app.config.from_mapping(config)
 cache: Cache = Cache(app)
 
-async def where_ip(session: ClientSession, ip_address: str):
+
+async def where_ip(session: ClientSession, ip_address: str) -> str:
     url = "https://demo.ip-api.com/json/"
     headers = {
         "Origin": "https://ip-api.com",
-        "Referer": "https://ip-api.com"
+        "Referer": "https://ip-api.com",
+        "Host": "demo.ip-api.com",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
     }
     params = {
         "fields": environ.get("API_KEY") or open("API_KEY").readline(),
@@ -31,6 +34,12 @@ async def where_ip(session: ClientSession, ip_address: str):
     async with session.get(url+ip_address, params=params, headers=headers) as response:
         res = await response.json()
         return f"{res['city']}, {res['regionName']}, {res['country']}, {res['continent']}"
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return url_for('static', filename='favicon.ico')
+
 
 @app.route('/<string:query>', methods=['GET'])
 @app.route('/', methods=['GET'])
@@ -45,11 +54,15 @@ async def main_app(query: str = None):
         'ramadhan': ""
     }
 
-    par1, par2 = str(request.args.get('calcMethod')).replace(' ', '_').upper(), str(request.args.get('asjurMethod')).replace(' ', '_').upper()
-    calcMethod = CalculationMethod[par1] if hasattr(CalculationMethod, par1) else CalculationMethod.DEFAULT
-    asrjurMethod = AsrjuristicMethod[par2] if hasattr(AsrjuristicMethod, par2) else AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI
+    par1, par2 = str(request.args.get('calcMethod')).replace(' ', '_').upper(), str(
+        request.args.get('asjurMethod')).replace(' ', '_').upper()
+    calcMethod = CalculationMethod[par1] if hasattr(
+        CalculationMethod, par1) else CalculationMethod.DEFAULT
+    asrjurMethod = AsrjuristicMethod[par2] if hasattr(
+        AsrjuristicMethod, par2) else AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI
     async with ClientSession() as session:
-        api = Search(session=session, calculation=calcMethod, asrjuristic=asrjurMethod)
+        api = Search(session=session, calculation=calcMethod,
+                     asrjuristic=asrjurMethod)
         try:
             if query is None:
                 list_ip = request.headers['x-forwarded-for'].split(',')
@@ -65,7 +78,6 @@ async def main_app(query: str = None):
                 response['ramadhan'] = "Currently only supported in Indonesian"
         except (IndexError, KeyError):
             response['location'] = not_found
-        session.close()
 
     if response['location'] != not_found:
         response['location'] = f"{location['city_name'].title()}, {location['country_name'].title()}"
@@ -74,9 +86,9 @@ async def main_app(query: str = None):
         response['praytimes'] = {}
         for i in iter(data.raw):
             response['praytimes'][i.date] = i.prayertimes
-    
+
     return jsonify(response)
-    
+
 
 @app.errorhandler(400)
 @app.errorhandler(404)
