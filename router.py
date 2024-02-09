@@ -1,10 +1,10 @@
 from aiohttp import ClientSession
-from MuslimProAPI import Search
 from flask import Flask, jsonify, redirect, request, url_for
 from flask_caching import Cache
 from os import environ
 
-from MuslimProAPI.const import AsrjuristicMethod, CalculationMethod
+from MuslimProScrapper import Search
+from MuslimProScrapper.const import AsrjuristicMethod, CalculationMethod
 
 config: dict = {
     'CORS_HEADERS': 'Content-Type',

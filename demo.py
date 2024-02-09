@@ -1,13 +1,13 @@
-import MuslimProAPI
 import asyncio
 
-from MuslimProAPI.const import AsrjuristicMethod, CalculationMethod
+from MuslimProScrapper import Search
+from MuslimProScrapper.const import AsrjuristicMethod, CalculationMethod
 
 # Custom calculationMethod and asrjuristicMethod 
 # client = MuslimProAPI.Search(calculation=CalculationMethod.SIHAT_KEMENAG_KEMENTERIAN_AGAMA_RI, asrjuristic=AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI)
 
 # Default just let it blank
-client = MuslimProAPI.Search()
+client = Search()
 
 async def asd():
     location = "Tokyo"
