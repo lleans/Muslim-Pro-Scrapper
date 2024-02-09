@@ -1,3 +1,5 @@
 __pycache__
 .dockerignore
 .gitignore
+API_KEY
+cache
