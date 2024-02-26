@@ -41,8 +41,49 @@ def favicon():
     return url_for('static', filename='favicon.ico')
 
 
-@app.route('/<string:query>', methods=['GET'])
 @app.route('/', methods=['GET'])
+async def get_location_based():
+    not_found = 'Location not Found'
+    response = {
+        'location': "",
+        'calculationMethod': "",
+        'asrjuristicMethod': "",
+        'praytimes': "",
+        'ramadhan': ""
+    }
+
+    calcMethod = CalculationMethod.DEFAULT
+    asrjurMethod = AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI
+
+    async with ClientSession() as session:
+        api = Search(session=session, calculation=calcMethod,
+                     asrjuristic=asrjurMethod)
+        try:
+            list_ip = request.headers['x-forwarded-for'].split(',')
+            query: str = await where_ip(session=session, ip_address=list_ip[len(list_ip)-1] or request.remote_addr)
+
+            data = await api.search(location=query)
+            location = await api.geocode(location=query)
+
+            if location['country_name'].title() == "Indonesia":
+                response['ramadhan'] = await api.ramadhan_time()
+            else:
+                response['ramadhan'] = "Currently only supported in Indonesian"
+        except (IndexError, KeyError):
+            response['location'] = not_found
+
+    if response['location'] != not_found:
+        response['location'] = f"{location['city_name'].title()}, {location['country_name'].title()}"
+        response['calculationMethod'] = data.calculationMethod
+        response['asrjuristicMethod'] = data.asrjuristicMethod
+        response['praytimes'] = {}
+        for i in iter(data.raw):
+            response['praytimes'][i.date] = i.prayertimes
+
+    return jsonify(response)
+
+
+@app.route('/<string:query>', methods=['GET'])
 @cache.cached(query_string=True)
 async def main_app(query: str = None):
     not_found = 'Location not Found'
@@ -64,11 +105,8 @@ async def main_app(query: str = None):
         api = Search(session=session, calculation=calcMethod,
                      asrjuristic=asrjurMethod)
         try:
-            if query is None:
-                list_ip = request.headers['x-forwarded-for'].split(',')
-                query = await where_ip(session=session, ip_address=list_ip[len(list_ip)-1] or request.remote_addr)
-            else:
-                query = query.strip()
+            query = query.strip()
+
             data = await api.search(location=query)
             location = await api.geocode(location=query)
 
