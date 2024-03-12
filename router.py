@@ -144,4 +144,4 @@ async def main_app(query: str, calcMethod: str = "", asjurMethod: str = "") -> J
 async def docs(e):
     return RedirectResponse('https://github.com/lleans/Muslim-Pro-Scrapper')
 
-uvicorn.run("router:app", port=environ.get('PORT') or 8000, workers=4)
+uvicorn.run("router:app", port=int(environ.get('PORT')) or 8000, workers=4)

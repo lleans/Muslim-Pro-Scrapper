@@ -4,4 +4,4 @@ COPY . /app
 WORKDIR /app
 RUN pip3 install -Ur requirements.txt
 
-CMD python3 "gunicorn router:app -w 4 -k uvicorn.workers.UvicornWorker"
+CMD ["gunicorn"  , "router:app", "-w 4", "-k uvicorn.workers.UvicornWorker"]
