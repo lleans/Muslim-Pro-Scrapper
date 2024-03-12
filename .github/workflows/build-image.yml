@@ -3,7 +3,7 @@ name: Image Builder
 on:
   push:
     branches:
-      - flask
+      - fast-api
 
 jobs:
 
