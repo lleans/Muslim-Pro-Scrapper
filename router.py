@@ -5,7 +5,7 @@ from aiohttp import ClientSession
 
 from pydantic import BaseModel, Field
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
@@ -21,13 +21,14 @@ import uvicorn
 from MuslimProScrapper import Search, Response as MuslimProResp
 from MuslimProScrapper.const import AsrjuristicMethod, CalculationMethod
 
+
 @asynccontextmanager
 async def lifespan(_):
-    redis = aioredis.from_url(f"redis://:{environ.get('REDIS_PASS')}@redis")
+    redis = aioredis.from_url("redis://redis")
     FastAPICache.init(RedisBackend(redis), prefix="muslimproapi-cache")
     yield
 
-app = FastAPI(title='MuslimPro_API', lifespan=lifespan)
+app = FastAPI(title='MuslimPro API', lifespan=lifespan, version="2.0")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -49,7 +50,7 @@ async def where_ip(session: ClientSession, ip_address: str) -> str:
 
 
 class ModelResponse(BaseModel):
-    location: str = Field(default="Location not found!!")
+    location: str = Field(default="")
     calculationMethod: str = Field(default="")
     asrjuristicMethod: str = Field(default="")
     praytimes: dict = Field(default=dict())
@@ -62,14 +63,29 @@ class BaseResponse(BaseModel):
     data: ModelResponse = Field(default=ModelResponse())
 
 
-@app.get('/favicon.ico')
+class CustomException(Exception):
+
+    def __init__(self, status_code: int, message: str) -> None:
+        self.body: BaseResponse = BaseResponse()
+        self.body.status_code = status_code
+        self.body.message = message
+        self.body.data.location = ""
+
+
+@app.get('/favicon.ico', response_class=FileResponse, include_in_schema=False)
 def favicon() -> FileResponse:
     return FileResponse("static/favicon.ico")
 
 
-@app.get('/', response_model=None)
-async def get_location_based(request: Request) -> RedirectResponse | JSONResponse:
-    resp: BaseResponse = BaseResponse()
+@app.get('/', response_class=RedirectResponse, responses={
+    307: {'description': "Will redirect into your specific location path"}
+})
+async def get_location_based(request: Request) -> RedirectResponse:
+    """
+    Root redirection based ip
+
+    By Looking up your ip adress location, this will redirect you into the specific path based your location
+    """
     try:
         async with ClientSession() as session:
             client_ip: str = request.client.host
@@ -79,28 +95,34 @@ async def get_location_based(request: Request) -> RedirectResponse | JSONRespons
             return RedirectResponse(redirect_url)
 
     except (IndexError, KeyError):
-        resp.status_code = 404
-        return JSONResponse(content=jsonable_encoder(resp), status_code=404)
+        raise CustomException(
+            status_code=404, message="Location was not found!!")
     except:
-        resp.message = "Something went wrong"
-        resp.status_code = 500
-        resp.data.location = ""
-        return JSONResponse(content=jsonable_encoder(resp), status_code=500)
+        raise CustomException(
+            status_code=500, message="Something went wrong!?")
 
 
-@app.get('/{query}', response_class=JSONResponse)
+@app.get('/{query}', response_model=BaseResponse, responses={
+    200: {'description': "Will return the data, as the model", 'model': BaseResponse}
+})
 @cache(expire=86400)
-async def main_app(query: str, calcMethod: str = "", asjurMethod: str = "") -> JSONResponse:
+async def main_app(query: str, calcMethod: str = CalculationMethod.DEFAULT.name, asjurMethod: str = AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI.name) -> JSONResponse:
+    """
+    Main Appplication
+
+    -   Query\n
+        :query -> Pass this your location, to lookup the data
+    -   Parameters\n
+        :calcMethod[Optional] -> Put calculation method(read source code)\n
+        :asjurMethod[Optional] -> Put asrjuristic method(read source code)
+    """
     resp: BaseResponse = BaseResponse()
-    status: int = 200
 
-    par1, par2 = calcMethod.replace(
-        ' ', '_').upper(), asjurMethod.replace(' ', '_').upper()
+    par1 = calcMethod.replace(' ', '_').upper()
+    par2 = asjurMethod.replace(' ', '_').upper()
+    calc = CalculationMethod[par1]
+    asjur = AsrjuristicMethod[par2]
 
-    calc = CalculationMethod[par1] if hasattr(
-        CalculationMethod, par1) else CalculationMethod.DEFAULT
-    asjur = AsrjuristicMethod[par2] if hasattr(
-        AsrjuristicMethod, par2) else AsrjuristicMethod.STANDARD_SHAFI_MALIKI_HANBALI
     async with ClientSession() as session:
         api = Search(session=session, calculation=calc,
                      asrjuristic=asjur)
@@ -114,7 +136,8 @@ async def main_app(query: str, calcMethod: str = "", asjurMethod: str = "") -> J
                 city_name: str = location.get('city_name', '')
                 country_name: str = location.get('country_name', '')
 
-                resp.data.location = f"{city_name.title()}, {country_name.title()}"
+                resp.data.location = f"{city_name.title()}, {
+                    country_name.title()}"
                 resp.data.calculationMethod = data.calculationMethod
                 resp.data.asrjuristicMethod = data.asrjuristicMethod
                 for i in iter(data.raw):
@@ -128,20 +151,25 @@ async def main_app(query: str, calcMethod: str = "", asjurMethod: str = "") -> J
                     resp.data.ramadhan = "Currently only supported in Indonesia"
 
         except (IndexError, KeyError):
-            status = 404
-            resp.status_code = status
+            raise CustomException(
+                status_code=404, message="Location was not found!!")
         except:
-            status = 500
-            resp.message = "Something went wrong"
-            resp.status_code = status
-            resp.data.location = ""
+            raise CustomException(
+                status_code=500, message="Something went wrong!?")
 
-    return JSONResponse(content=jsonable_encoder(resp), status_code=status)
+    return JSONResponse(content=jsonable_encoder(resp))
 
 
-@app.exception_handler(400)
 @app.exception_handler(404)
-async def docs(e):
-    return RedirectResponse('https://github.com/lleans/Muslim-Pro-Scrapper')
+@app.exception_handler(500)
+@app.exception_handler(422)
+@app.exception_handler(400)
+async def error_handling(_, exec: Exception) -> JSONResponse:
+    if isinstance(exec, CustomException):
+        return JSONResponse(content=jsonable_encoder(exec.body), status_code=exec.body.status_code)
 
-uvicorn.run("router:app", port=int(environ.get('PORT')) or 8000, workers=4)
+    return RedirectResponse(url='/docs')
+
+if __name__ == "__main__":
+    uvicorn.run("router:app", host="0.0.0.0",
+                port=int(environ.get('PORT')) or 8000, log_level="info", workers=3)

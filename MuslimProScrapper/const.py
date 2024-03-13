@@ -6,6 +6,7 @@ GEOCODE_URL = "https://positionstack.com/geo_api.php"
 # Indonesian Based
 RAMADHAN_API_INDONESIA = "https://calendarific.com/holiday/indonesia/idul-fitri"
 
+
 class CalculationMethod(Enum):
     DEFAULT = "Precalc"
     ALGERIAN_MINISTER_OF_RELIGIOUS_AND_WAKFS = "Algeria"
@@ -25,10 +26,11 @@ class CalculationMethod(Enum):
     SHIA_ITHNA_ASHARI_JAFARI = "Jafari"
     SIHAT_KEMENAG_KEMENTERIAN_AGAMA_RI = "KEMENAG"
     TUNISIAN_MINISTRY_OF_RELIGIOUS_AFFAIRS = "Tunisia"
-    UAE_GENERAL_AUTHORITY_OF_ISLAMIC_AFFAIRS_AND_ENDOWMENTS = "AwqafUAE" 
+    UAE_GENERAL_AUTHORITY_OF_ISLAMIC_AFFAIRS_AND_ENDOWMENTS = "AwqafUAE"
     UMM_AL_QURA_MAKKAH = "Makkah"
     UNIVERSITY_OF_TEHRAN = "Tehran"
     FEDERATION_OF_ISLAMIC_ASSOCIATIONS_IN_BASQUE_COUNTRY = "BASQUE"
+
 
 class AsrjuristicMethod(Enum):
     STANDARD_SHAFI_MALIKI_HANBALI = "Standard"
