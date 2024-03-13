@@ -172,4 +172,4 @@ async def error_handling(_, exec: Exception) -> JSONResponse:
 
 if __name__ == "__main__":
     uvicorn.run("router:app", host="0.0.0.0",
-                port=int(environ.get('PORT')) or 8000, log_level="info", workers=3)
+                port=int(environ.get('PORT')) or 8000, log_level="info", workers=3, forwarded_allow_ips="*")
