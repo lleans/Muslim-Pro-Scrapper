@@ -5,7 +5,7 @@ from aiohttp import ClientSession
 
 from pydantic import BaseModel, Field
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
