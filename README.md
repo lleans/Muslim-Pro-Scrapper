@@ -1,5 +1,5 @@
 # Muslim Pro Scrapper 🕌
-Simple scrapper using aiohttp and pyquery to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslim-pro-api-lleans.koyeb.app), for location type it after domain to preffer by your location ex. muslim-pro-api-lleans.koyeb.app/Tokyo(your location here)
+Simple scrapper using aiohttp and pyquery to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslimpro-scrapper.lleans.dev/), for location type it after domain to preffer by your location ex. muslimpro-scrapper.lleans.dev/Tokyo(your location here)
 
 ## V.1.8 🎠
 On this version the data structure will be change (read ```demo.py```), now you can see the 30 days of praytime to make your life easier 🎀
