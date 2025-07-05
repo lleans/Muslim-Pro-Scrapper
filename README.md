@@ -1,6 +1,9 @@
 # Muslim Pro Scrapper 🕌
 Simple scrapper to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslimpro-scrapper.lleans.dev/), for location type it after domain to preffer by your location ex. muslimpro-scrapper.lleans.dev/Tokyo(your location here)
 
+## Docs 📖
+[Docs 📚](https://muslimpro-scrapper.lleans.dev/docs)
+
 ## Calculation Option 🕹
 You can see the option by importing class with name ```CalculationMethod``` and ```AsrjuristicMethod```, same with the api request you need to pass **The Variable Name on Const Class** on params ```calcMethod``` ```asrjurMethod```, here the list of it
 <code><img width=500 src="https://i.imgur.com/NxU14z8.png"></code><br />
