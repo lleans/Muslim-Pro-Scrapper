@@ -1,11 +1,19 @@
 # Muslim Pro Scrapper 🕌
+
+> [!IMPORTANT]  
+> If you're using API from the hosted server, the time on there is on utc+7 (following server location to scrape that)
+
 Simple scrapper to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslimpro-scrapper.lleans.dev/), for location type it after domain to preffer by your location ex. muslimpro-scrapper.lleans.dev/Tokyo(your location here)
 
 ## Docs 📖
 [Docs 📚](https://muslimpro-scrapper.lleans.dev/docs)
 
 ## Calculation Option 🕹
-You can see the option by importing class with name ```CalculationMethod``` and ```AsrjuristicMethod```, same with the api request you need to pass **The Variable Name on Const Class** on params ```calcMethod``` ```asrjurMethod```, here the list of it
+You can see the option by importing class with name ```CalculationMethod``` ~~and ```AsrjuristicMethod```~~, same with the api request you need to pass **The Variable Name on Const Class** on params ```calcMethod``` ~~```asrjurMethod```~~, here the list of it
+
+> [!IMPORTANT]  
+> AsrjuristicMethod has been deprecated and muslimpro does not support it anymore from API
+
 <code><img width=500 src="https://i.imgur.com/NxU14z8.png"></code><br />
 Here some refrece for calculation method<br />
 - [Prayer Time Calculation - PrayTimes.org 📚](http://praytimes.org/calculation)
