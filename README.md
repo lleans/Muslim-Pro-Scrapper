@@ -1,7 +1,7 @@
 # Muslim Pro Scrapper 🕌
 
 > [!IMPORTANT]  
-> If you're using API from the hosted server, the time on there is on utc+7 (following server location to scrape that)
+> If you're using API from the hosted server, the time on there is already following target city timezone. no need to transform anything
 
 Simple scrapper to get Praytime for moslem people, this api is hosted on server right [here 🎄](https://muslimpro-scrapper.lleans.dev/), for location type it after domain to preffer by your location ex. muslimpro-scrapper.lleans.dev/Tokyo(your location here)
 
